@@ -1,12 +1,16 @@
 * malloc-uninitialized
 ** Why?
-While malloc returns uninitialized memory, the operating system zeroes all memory given to the program (*) for security reasons.
+While malloc returns uninitialized memory, the operating system zeroes all memory given to the program (\*) for security reasons.
 Therefore the first time malloc returns a certain block of memory, it is zeroed.
 This can lead to uninitialized memory bugs to apparently jsut work fine.
 This library changes that.
+
+(\*) This is sometimes not true in embedded environments
 ** How
 We wrap the system c library's malloc function with our own.
 The block returned from malloc is then filled with random data from a cryptographic random number generator seeded from urandom.
+** Portability
+Linux only
 ** Build
 With a recent rust toolchain installed run
 #+begin_src
