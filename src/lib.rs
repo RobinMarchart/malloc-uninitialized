@@ -1,12 +1,10 @@
 #![no_std]
 
-use core::{sync::atomic::AtomicBool, ffi::{c_int, c_void}, mem::transmute, slice::from_raw_parts_mut};
+use core::{sync::atomic::AtomicBool, ffi::{c_int, c_void}, mem::transmute, slice::from_raw_parts_mut, panic::PanicInfo};
 
 use rand_chacha::ChaCha20Rng;
 
 use rand::{Rng,SeedableRng};
-
-use panic_abort as _;
 
 struct InitData{
     malloc:fn(usize)->*mut c_void,
@@ -71,4 +69,11 @@ pub extern "C" fn malloc(size:usize)->*mut c_void{
 #[link(name="dl")]
 extern {
     fn dlsym(handle:*mut c_void,symbol:*const u8)->*const c_void;
+}
+
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    unsafe {
+       transmute::<*const c_void,fn ()->!>(dlsym(RTDL_DEFAULT as *mut c_void, b"abort\0".as_ptr()))();
+    }
 }
