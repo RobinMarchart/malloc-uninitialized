@@ -151,7 +151,7 @@ pub extern "C" fn realloc(ptr: *mut c_void, size: usize) -> *mut c_void {
         let slice = unsafe { from_raw_parts_mut(ptr.cast::<u8>(), size) };
         rng.fill(slice.get_mut(old_size..).unwrap());
     }
-    if old_size != DATA.size_map.lock().insert(ptr as usize, size).unwrap_or(0) {
+    if (size==0&&old_size!=DATA.size_map.lock().remove(&(ptr as usize)).unwrap_or(0))||old_size != DATA.size_map.lock().insert(ptr as usize, size).unwrap_or(0) {
         panic!("Racy realloc detected")
     }
     ptr
@@ -183,7 +183,7 @@ pub extern "C" fn reallocarray(ptr: *mut c_void, num: usize, size: usize) -> *mu
             let slice = unsafe { from_raw_parts_mut(ptr.cast::<u8>(), full_size) };
             rng.fill(slice.get_mut(old_size..).unwrap());
         }
-        if old_size
+        if (full_size==0&&old_size!=DATA.size_map.lock().remove(&(ptr as usize)).unwrap_or(0))||old_size
             != DATA
                 .size_map
                 .lock()

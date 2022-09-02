@@ -23,3 +23,9 @@ add this library to the LD_PRELOAD env var like:
 LD_PRELOAD={path}/malloc-uninitialized.so {executable}
 #+end_src
 where ~path~ is the path where the library is located and ~execuatble~ is the executable you want to run.
+** Realloc
+Support for realloc requires the unstable toolchain, as it depends on alloc, which is currently not usable on stable.
+Enable the ~realloc~ feature like this:
+#+begin_src shell
+cargo build --features=realloc
+#+end_src
